@@ -1407,7 +1407,7 @@ module.exports = naze = async (naze, m, msg, store, groupCache) => {
 				}).catch((err) => m.reply('Gagal!'))
 			}
 			break
-			case 'group': case 'grup': case 'gc': {
+			case 'group': case 'grup': {
 				if (!m.isGroup) return m.reply(mess.group)
 				if (!m.isAdmin) return m.reply(mess.admin)
 				if (!m.isBotAdmin) return m.reply(mess.botAdmin)
@@ -1454,8 +1454,7 @@ module.exports = naze = async (naze, m, msg, store, groupCache) => {
 			break
 			case 'tagall': {
 				if (!m.isGroup) return m.reply(mess.group)
-				if (!m.isAdmin) return m.reply(mess.admin)
-				if (!m.isBotAdmin) return m.reply(mess.botAdmin)
+				if (!m.isAdmin && !isCreator) return m.reply(mess.admin)
 				let setv = pickRandom(listv)
 				let teks = `*Tag All*\n\n*Pesan :* ${q ? q : ''}\n\n`
 				for (let mem of m.metadata.participants) {
@@ -1466,15 +1465,27 @@ module.exports = naze = async (naze, m, msg, store, groupCache) => {
 			break
 			case 'hidetag': case 'h': {
 				if (!m.isGroup) return m.reply(mess.group)
-				if (!m.isAdmin) return m.reply(mess.admin)
-				if (!m.isBotAdmin) return m.reply(mess.botAdmin)
+				if (!m.isAdmin && !isCreator) return m.reply(mess.admin)
 				await m.reply(q ? q : '', { mentions: m.metadata.participants.map(a => a.id) })
 			}
 			break
+         case "tag":
+			if (!m.isGroup) return m.reply(mess.group)
+			if (!text) return m.reply(`Masukan Teks!!`)
+			naze.sendMessage(m.chat, {
+				text: "@" + m.chat,
+				contextInfo: {
+					mentionedJid: m.metadata.participants.map(a => a.id),
+					groupMentions: [{
+						groupJid: m.chat,
+						groupSubject: q
+					}]
+				}
+			})
+			break
 			case 'totag': {
 				if (!m.isGroup) return m.reply(mess.group)
-				if (!m.isAdmin) return m.reply(mess.admin)
-				if (!m.isBotAdmin) return m.reply(mess.botAdmin)
+				if (!m.isAdmin && !isCreator) return m.reply(mess.admin)
 				if (!m.quoted) return m.reply(`Reply pesan dengan caption ${prefix + command}`)
 				delete m.quoted.chat
 				await naze.sendMessage(m.chat, { forward: m.quoted.fakeObj, mentions: m.metadata.participants.map(a => a.id) })
@@ -3130,22 +3141,6 @@ module.exports = naze = async (naze, m, msg, store, groupCache) => {
 				if (!teks1 || !teks2 || !teks3) return m.reply(`Example : ${prefix + command} pesan target|pesan mu|nomer/tag target`)
 				let ftelo = { key: { fromMe: false, participant: teks3.replace(/[^0-9]/g, '') + '@s.whatsapp.net', ...(m.isGroup ? { remoteJid: m.chat } : { remoteJid: teks3.replace(/[^0-9]/g, '') + '@s.whatsapp.net'})}, message: { conversation: teks1 }}
 				naze.sendMessage(m.chat, { text: teks2 }, { quoted: ftelo });
-			}
-			break
-			case 'coba': {
-				let anu = ['Aku Monyet','Aku Kera','Aku Tolol','Aku Kaya','Aku Dewa','Aku Anjing','Aku Dongo','Aku Raja','Aku Sultan','Aku Baik','Aku Hitam','Aku Suki']
-				await naze.sendButtonMsg(m.chat, {
-					text: 'Semoga Hoki😹',
-					buttons: [{
-						buttonId: 'teshoki',
-						buttonText: { displayText: '\n' + pickRandom(anu)},
-						type: 1
-					},{
-						buttonId: 'cobacoba',
-						buttonText: { displayText: '\n' + pickRandom(anu)},
-						type: 1
-					}]
-				})
 			}
 			break
 			
